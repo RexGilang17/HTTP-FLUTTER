@@ -40,7 +40,16 @@ public class UserRepository implements IUserRepository {
 
         return result;
     }
-	
+
+    @Override
+	public User updateUser(int id, User user) {
+		// TODO Auto-generated method stub
+		String query = "UPDATE tb_user SET nama = ?, email = ?, gender = ? WHERE id = ?";
+		
+		jdbcTemplate.update(query, new Object[] {user.getNama(), user.getEmail(), user.getGender(), id});
+		
+		return user;
+	}
 	
 	
 }

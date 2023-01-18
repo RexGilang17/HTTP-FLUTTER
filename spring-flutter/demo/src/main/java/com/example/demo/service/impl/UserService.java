@@ -27,8 +27,14 @@ public class UserService implements IUserService {
 
 	    @Override
 	    public User deleteUser(int id) {
-	        // TODO Auto-generated method stub
+	       
 	        return userRepository.deleteUser(id);
 	    }
+
+		@Override
+		public User updateUser(int id, User user) {
+			// TODO Auto-generated method stub
+			return userRepository.updateUser(id, user);
+		}
 
 }

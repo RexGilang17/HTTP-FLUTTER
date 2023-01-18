@@ -11,4 +11,6 @@ public interface IUserRepository {
 	  public List<User> getAllUser();
 
 	  public User deleteUser(int id);
+
+	  public User updateUser(int id, User user);
 }

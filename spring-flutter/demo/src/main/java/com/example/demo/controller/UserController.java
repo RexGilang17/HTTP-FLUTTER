@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.model.User;
 import com.example.demo.service.IUserService;
+import org.springframework.web.bind.annotation.PutMapping;
+
 
 @RestController
 @CrossOrigin(origins = "http://localhost:8080")
@@ -36,5 +38,10 @@ public class UserController {
     public User deleteUser(@PathVariable int id) {
         return userService.deleteUser(id);
     }
+
+    @PutMapping("/update/{id}")
+	public User updateUser(@PathVariable int id, @RequestBody User user) {
+		return userService.updateUser(id, user);
+	}
 
 }
