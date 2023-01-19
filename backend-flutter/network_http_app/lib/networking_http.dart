@@ -26,7 +26,7 @@ class _NetworkHttpState extends State<NetworkHttp> {
         ),
         body: Container(child: UsingTheData()),
         floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.add),
+          child: Icon(Icons.edit),
           onPressed: () {
             showDialog(
               context: context,
@@ -40,25 +40,15 @@ class _NetworkHttpState extends State<NetworkHttp> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       TextFormField(
+                        
                         controller: add1,
                         autofocus: true,
                         decoration:
                             InputDecoration(hintText: "Input your name"),
+                            
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please input your Name';
-                          }
-                          return null;
-                        },
-                      ),
-                      TextFormField(
-                        controller: add3,
-                        autofocus: true,
-                        decoration:
-                            InputDecoration(hintText: "Input your gender"),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please input your Gender';
                           }
                           return null;
                         },
@@ -78,6 +68,18 @@ class _NetworkHttpState extends State<NetworkHttp> {
                           return null;
                         },
                       ),
+                      TextFormField(
+                        controller: add3,
+                        autofocus: true,
+                        decoration:
+                            InputDecoration(hintText: "Input your gender", ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please input your Gender';
+                          }
+                          return null;
+                        },
+                      ),
                     ],
                   ),
                 ),
@@ -89,7 +91,7 @@ class _NetworkHttpState extends State<NetworkHttp> {
                           "nama": add1.text,
                           "email": add2.text,
                           "gender": add3.text,
-                          "password": ""
+                          // "password": ""
                         });
                         add1.clear();
                         add2.clear();
@@ -114,7 +116,7 @@ class PrintResponseBody extends StatelessWidget {
 
   Future<http.Response> getData() async {
     final response =
-        await http.get(Uri.parse("http://192.168.1.5:8082/api/user/getAll"));
+        await http.get(Uri.parse("http://$localAddress/api/user/getAll"));
     // await http.get(Uri.parse("https://reqres.in/api/users?per_page=15"));
     // await Future.delayed(const Duration(seconds: 2));
     return response;
@@ -147,7 +149,7 @@ class UsingTheData extends StatefulWidget {
 class _UsingTheDataState extends State<UsingTheData> {
   Future<http.Response> getData() async {
     final response =
-        await http.get(Uri.parse("http://192.168.1.5:8082/api/user/getAll"));
+        await http.get(Uri.parse("http://$localAddress/api/user/getAll"));
     // await http.get(Uri.parse("https://reqres.in/api/users?per_page=15"));
     // await Future.delayed(const Duration(seconds: 2));
     setState(() {
@@ -158,6 +160,11 @@ class _UsingTheDataState extends State<UsingTheData> {
 
   @override
   Widget build(BuildContext context) {
+    final _formKey = GlobalKey<FormState>();
+    final add1 = TextEditingController();
+    final add2 = TextEditingController();
+    final add3 = TextEditingController();
+
     return FutureBuilder(
         future: getData().then((value) => value.body),
         builder: (context, snapshot) {
@@ -182,13 +189,86 @@ class _UsingTheDataState extends State<UsingTheData> {
                       children: [
                         IconButton(
                           onPressed: () {
-                            updateData(index + 1, {
-                              "nama": "${json[index]["nama"]}",
-                              "email": "${json[index]["email"]}"
-                            });
+                            add1.text = json[index]["nama"];
+                            add2.text = json[index]["email"];
+                            add3.text = json[index]["gender"];
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: Center(
+                                  child: Text("Input Data"),
+                                ),
+                                content: Form(
+                                  key: _formKey,
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      TextFormField(
+                                        controller: add1,
+                                        autofocus: true,
+                                        decoration: InputDecoration(
+                                            hintText: "Input your name"),
+                                        validator: (value) {
+                                          if (value == null || value.isEmpty) {
+                                            return 'Please input your Name';
+                                          }
+                                          return null;
+                                        },
+                                      ),
+                                      TextFormField(
+                                        controller: add2,
+                                        autofocus: true,
+                                        decoration: InputDecoration(
+                                            hintText: "Input your email"),
+                                        validator: (value) {
+                                          if (value == null || value.isEmpty) {
+                                            return 'Please input Your Email';
+                                          }
+                                          if (!EmailValidator.validate(value)) {
+                                            return 'Please enter a valid email';
+                                          }
+                                          return null;
+                                        },
+                                      ),
+                                      TextFormField(
+                                        controller: add3,
+                                        autofocus: true,
+                                        decoration: InputDecoration(
+                                            hintText: "Input your gender"),
+                                        validator: (value) {
+                                          if (value == null || value.isEmpty) {
+                                            return 'Please input your Gender';
+                                          }
+                                          return null;
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                actions: [
+                                  IconButton(
+                                    onPressed: () {
+                                      if (_formKey.currentState!.validate()) {
+                                        updateData(json[index]["id"], {
+                                          "nama": add1.text,
+                                          "email": add2.text,
+                                          "gender": add3.text,
+                                          // "password": ""
+                                        });
+                                        add1.clear();
+                                        add2.clear();
+                                        add3.clear();
+                                        Navigator.of(context).pop();
+                                      }
+                                    },
+                                    icon: Icon(Icons.add),
+                                  ),
+                                ],
+                              ),
+                            );
                           },
                           icon: const Icon(
-                            Icons.add_circle,
+                            Icons.add,
                           ),
                         ),
                         IconButton(
@@ -196,7 +276,7 @@ class _UsingTheDataState extends State<UsingTheData> {
                             deleteData(json[index]["id"]);
                           },
                           icon: const Icon(
-                            Icons.remove_circle,
+                            Icons.delete,
                           ),
                         ),
                       ],
@@ -242,11 +322,13 @@ class _UsingTheDataState extends State<UsingTheData> {
 //   return response;
 // }
 
+String localAddress = "192.168.1.5:8082";
+
 Future<http.Response> postData(Map<String, String> data) async {
   // data object exampl
   // data = {"name": "post method", "email": "postmethod@test.con"};
   final response =
-      await http.post(Uri.parse("http://192.168.96.129:8082/api/user/insert"),
+      await http.post(Uri.parse("http://$localAddress/api/user/insert"),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
           },
@@ -259,12 +341,12 @@ Future<http.Response> postData(Map<String, String> data) async {
 Future<http.Response> updateData(int id, Map<String, String> data) async {
   // data object example
   // data = {"name": "post method", "email": "postmethod@test.con"};
-  final response = await http.put(
-      Uri.parse("https://jsonplaceholder.typicode.com/users/$id"),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(data));
+  final response =
+      await http.put(Uri.parse("http://$localAddress/api/user/update/$id"),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+          },
+          body: jsonEncode(data));
   print(response.statusCode);
   print(response.body);
   return response;
@@ -274,7 +356,7 @@ Future<http.Response> deleteData(id) async {
   // data object example
   // data = {"name": "post method", "email": "postmethod@test.con"};
   final response = await http.delete(
-    Uri.parse("http://192.168.1.5:8082/api/user/delete/$id"),
+    Uri.parse("http://$localAddress/api/user/delete/$id"),
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
